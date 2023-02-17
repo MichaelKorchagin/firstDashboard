@@ -1,0 +1,43 @@
+body {
+    width: 100%;
+}
+h2, h3, h4, h5, .h1Month, .h1Week, .weekButtonClose, .weekButton, span {
+    font-family: Andale Mono, monospace;
+    font-weight: normal;
+}
+h1 {
+    font-family: Andale Mono, monospace;
+    text-align: center;
+    font-weight: 800;
+}
+.container, .wrapperH, .containerRating {
+    background-color: rgba(238,238,238,0.62);
+    margin: 0 7%;
+}
+.container {
+    display: flex;
+    justify-content: space-between;
+}
+.h1Month {
+    margin: 10px 10% 20px;
+}
+.h1Week {
+    margin: 150px 10% 20px;
+}
+.pieWrapper {
+    text-align: center;
+}
+.buttonsPieWrapper {
+    align-items: center;
+    min-width: 350px;
+}
+.weekButton, .weekButtonClose {
+    margin: 5px 5px;
+    background-color: #00C0FF;
+    border-radius: 7px;
+}
+.newString, .hat {
+    display: flex;
+    justify-content: space-between;
+}
+

@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Excel to JSON | Javacodepoint</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.min.js"></script>
+</head>
+<body>
+<h1>Upload an excel file to convert into JSON</h1>
+<input type="file" id="file_upload" />
+<button onclick="upload()">Upload</button>
+<button onclick="changeLocation()">Dashboard</button>
+<br>
+<br>
+<!-- container to display the json result -->
+<textarea id="json-result" style="display:none;height:500px;width:350px;"></textarea>
+<script src="src/excelToJSON.js"></script>
+</body>
+</html>

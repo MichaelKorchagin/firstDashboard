@@ -1,0 +1,14 @@
+{
+  "dependencies": {
+    "apexcharts": "^3.37.0"
+  },
+  "name": "firstdashboard",
+  "version": "1.0.0",
+  "main": "inbox.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Korchagin",
+  "license": "ISC",
+  "description": ""
+}

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>inbox</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrapperH">
+    <h1 class="h1Month">Сумма абонентских плат в месячной динамике</h1>
+</div>
+<div class="container">
+    <div class="pieWrapper">
+        <h3>Включение</h3>
+        <div id="inboxChart" class="monthDinamic"></div>
+    </div>
+    <div class="pieWrapper">
+        <h3>Отключение</h3>
+        <div id="outboxChart" class="monthDinamic"></div>
+    </div>
+    <div class="pieWrapper">
+        <h3>Процентное соотношение включений и отключений в месячном разрезе</h3>
+        <div id="pie" class="monthDinamic"></div>
+    </div>
+</div>
+
+<div class="wrapperH">
+    <h1 class="h1Week">Сумма абонентских плат в недельной динамике</h1>
+</div>
+<div class="container">
+    <div class="pieWrapper">
+        <h3>Недельная динамика включения и отключения</h3>
+        <div id="weekInboxChart" class="monthDinamic"></div>
+    </div>
+    <div class="pieWrapper">
+        <h3>Процентное соотношение включений и отключений в недельном разрезе</h3>
+        <h4>Выbерите неделю</h4>
+        <div class="buttonsPieWrapper" id="buttonsPieWrapper"></div>
+        <div id="weekPieWrapper"></div>
+    </div>
+</div>
+
+<div class="wrapperH">
+    <h1 class="h1Week">Рейтинги продаж среди продавцов</h1>
+</div>
+<div class="containerRating">
+<!--    <div class="tableWrapper">-->
+<!--        <h3>Оbщий показатель суммы аbонентских плат среди продавцов</h3>-->
+<!--        <div class="table" id="tableAll">-->
+<!--            <div class="hat">-->
+<!--                <h4>Продавец</h4>-->
+<!--                <h4>Оbщий показатель по аbонентским платам</h4>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
+<!--    <div class="tableWrapper">-->
+<!--        <h3>Рейтинг продавцов по сумме аbоненстких плат</h3>-->
+<!--        <div class="table" id="tableRating"></div>-->
+<!--    </div>-->
+<!--    <div class="tableWrapper">-->
+<!--        <h3>Антирейтинг продавцов по сумме аbоненстких плат</h3>-->
+<!--        <div class="table" id="tableAntiRating"></div>-->
+<!--    </div>-->
+
+    <div class="rating" id="rating">
+
+    </div>
+    <div class="rating" id="antiRating">
+
+    </div>
+</div>
+
+
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="inbox.js"></script>
+</body>
+</html>
