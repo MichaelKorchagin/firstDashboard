@@ -14,7 +14,7 @@ h1 {
     background-color: rgba(238,238,238,0.62);
     margin: 0 7%;
 }
-.container {
+.container, .containerServices {
     display: flex;
     justify-content: space-between;
 }

@@ -354,8 +354,6 @@ const weekChartOutbox = new ApexCharts(document.getElementById("weekInboxChart")
 weekChartOutbox.render();
 
 
-
-
 // rating/anti-rating
 let rating = {};
 let antiRating = {};
@@ -408,27 +406,33 @@ const arrAntiRating = Object.entries(antiRating).sort(
 let summs = [];
 for (let l = 0; l < arr.length; l++) {
     summs.push(arr[l][1]);
-};
+}
+
 let summsRating = [];
 for (let l = 0; l < arrRating.length; l++) {
     summsRating.push(arrRating[l][1]);
-};
+}
+
 let summsAntiRating = [];
 for (let l = 0; l < arrAntiRating.length; l++) {
     summsAntiRating.push(arrAntiRating[l][1]);
-};
+}
+
 let sellers = [];
 for (let l = 0; l < arr.length; l++) {
     sellers.push(arr[l][0]);
-};
+}
+
 let sellersRating = [];
 for (let l = 0; l < arrRating.length; l++) {
     sellersRating.push(arrRating[l][0]);
-};
+}
+
 let sellersAntiRating = [];
 for (let l = 0; l < arrAntiRating.length; l++) {
     sellersAntiRating.push(arrAntiRating[l][0]);
-};
+}
+
 const arrObj = [];
 for (let pair = 0; pair < arr.length; pair++) {
     let onePair = {};
@@ -462,7 +466,7 @@ var ratingOpt = {
         stacked: true,
     },
     dataLabels: {
-      enabled: false
+        enabled: false
     },
     plotOptions: {
         bar: {
@@ -493,8 +497,8 @@ var ratingOpt = {
     title: {
         text: 'Рейтинг продавцов',
         style: {
-            fontSize:  '24px',
-            fontWeight:  'bolder'
+            fontSize: '24px',
+            fontWeight: 'bolder'
         },
     },
     xaxis: {
@@ -524,7 +528,8 @@ var ratingOpt = {
         position: 'top',
         horizontalAlign: 'left',
         offsetX: 40
-    }};
+    }
+};
 
 var ratingChart = new ApexCharts(document.getElementById("rating"), ratingOpt);
 ratingChart.render();
@@ -541,7 +546,7 @@ var antiRatingOpt = {
         stacked: true,
     },
     dataLabels: {
-      enabled: false
+        enabled: false
     },
     plotOptions: {
         bar: {
@@ -572,8 +577,8 @@ var antiRatingOpt = {
     title: {
         text: 'Антирейтинг продавцов',
         style: {
-            fontSize:  '24px',
-            fontWeight:  'bolder'
+            fontSize: '24px',
+            fontWeight: 'bolder'
         },
     },
     xaxis: {
@@ -603,7 +608,502 @@ var antiRatingOpt = {
         position: 'top',
         horizontalAlign: 'left',
         offsetX: 40
-    }};
+    }
+};
 
 var antiRatingChart = new ApexCharts(document.getElementById("antiRating"), antiRatingOpt);
 antiRatingChart.render();
+
+
+// services
+// let allServices = {};
+let inAllServices = {};
+let outAllServices = {};
+let oneService = {};
+let count = 0;
+let inInternet = {};
+let outInternet = {};
+
+function selectionSort(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        let min = i;
+        for (let j = i + 1; j < arr.length; j++) {
+            if (arr[j][1].sum < arr[min][1].sum) {
+                min = j;
+            }
+        }
+        const t = arr[min];
+        arr[min] = arr[i];
+        arr[i] = t;
+    }
+    return arr;
+}
+
+function selectionSortSpeed(arr) {
+    for (let i = 0; i < arr.length; i++) {
+        let min = i;
+        for (let j = i + 1; j < arr.length; j++) {
+            if (arr[j][1].speed < arr[min][1].speed) {
+                min = j;
+            }
+        }
+        const t = arr[min];
+        arr[min] = arr[i];
+        arr[i] = t;
+    }
+    return arr;
+}
+
+function findService(serviceObj, _curService) {
+    let hasProp = [];
+    for (let o in serviceObj) {
+        if (serviceObj[o].service === _curService) {
+            hasProp.push(o);
+        }
+    }
+    return hasProp;
+}
+
+function findSpeed(serviceObj, _speed) {
+    let hasProp = [];
+    for (let o in serviceObj) {
+        if (serviceObj[o].speed === _speed) {
+            hasProp.push(o);
+        }
+    }
+    return hasProp;
+}
+
+for (let m in data) {
+    for (let w in data[m]) {
+        if (data[m][w].hasOwnProperty('SERVICE') && data[m][w].hasOwnProperty('Абонки по договору')) {
+            const curService = data[m][w].SERVICE;
+            const curSum = data[m][w]['Абонки по договору'];
+            const curSpeed = data[m][w].CHANNEL_SPEED_MB;
+            oneService['sum'] = curSum;
+            oneService['service'] = curService;
+            oneService['speed'] = curSpeed;
+            // if (Object.keys(allServices).length === 0) {
+            //     allServices[count] = oneService;
+            // } else {
+            //     const resAll = findService(allServices, curService);
+            //     if (resAll.length === 0) {
+            //         allServices[count] = oneService;
+            //     } else {
+            //         allServices[resAll].sum += curSum;
+            //     }
+            // }
+            if (data[m][w].TYPE === 'Включение') {
+                if (Object.keys(inAllServices).length === 0) {
+                    inAllServices[count] = oneService;
+                } else {
+                    const resIn = findService(inAllServices, curService);
+                    if (resIn.length === 0) {
+                        inAllServices[count] = oneService;
+                    } else {
+                        inAllServices[resIn].sum += curSum;
+                    }
+                }
+                if (Object.keys(inInternet).length === 0 && data[m][w].SERVICE === 'Интернет') {
+                    inInternet[count] = oneService;
+                } else if (data[m][w].SERVICE === 'Интернет' && data[m][w].CHANNEL_SPEED_MB !== undefined) {
+                    const resultInternet = findSpeed(inInternet, curSpeed);
+                    if (resultInternet.length === 0) {
+                        inInternet[count] = oneService;
+                    } else {
+                        inInternet[resultInternet].sum += curSum;
+                    }
+                }
+            }
+            if (data[m][w].TYPE === 'Отключение договора' ||
+                data[m][w].TYPE === 'Отключение услуги' ||
+                data[m][w].TYPE === 'Отключение договора') {
+                if (Object.keys(outAllServices).length === 0) {
+                    outAllServices[count] = oneService;
+                } else {
+                    const resOut = findService(outAllServices, curService);
+                    if (resOut.length === 0) {
+                        outAllServices[count] = oneService;
+                    } else {
+                        outAllServices[resOut].sum += curSum;
+                    }
+                }
+                if (Object.keys(outInternet).length === 0 && data[m][w].SERVICE === 'Интернет') {
+                    outInternet[count] = oneService;
+                } else if (data[m][w].SERVICE === 'Интернет') {
+                    const resultInternet = findSpeed(outInternet, curSpeed);
+                    if (resultInternet.length === 0) {
+                        outInternet[count] = oneService;
+                    } else {
+                        outInternet[resultInternet].sum += curSum;
+                    }
+                }
+            }
+            oneService = {};
+            count++;
+        }
+    }
+}
+
+// const sortArrServices = selectionSort(Object.entries(allServices));
+const sortInArrServices = selectionSort(Object.entries(inAllServices));
+const sortOutArrServices = selectionSort(Object.entries(outAllServices));
+const sortInInternet = selectionSort(Object.entries(inInternet));
+const sortOutInternet = selectionSort(Object.entries(outInternet));
+let inNameServices = [];
+let inSumServices = [];
+let outNameServices = [];
+let outSumServices = [];
+let inInternetSpeed = [];
+let inSumInternet = [];
+let outInternetSpeed = [];
+let outSumInternet = [];
+for (let i = sortInArrServices.length - 1; i >= 0; i--) {
+    inSumServices.push(sortInArrServices[i][1].sum);
+    inNameServices.push(sortInArrServices[i][1].service);
+}
+for (let i = 0; i < sortOutArrServices.length; i++) {
+    outSumServices.push(sortOutArrServices[i][1].sum);
+    outNameServices.push(sortOutArrServices[i][1].service);
+}
+for (let i = sortInInternet.length - 1; i >= 0; i--) {
+    inSumInternet.push(sortInInternet[i][1].sum);
+    inInternetSpeed.push(sortInInternet[i][1].speed);
+}
+for (let i = 0; i < sortOutInternet.length; i++) {
+    outSumInternet.push(sortOutInternet[i][1].sum);
+    outInternetSpeed.push(sortOutInternet[i][1].speed);
+}
+
+
+
+var serviceRatingOpt = {
+    series: [{
+        name: 'Общая сумма включений по услуге',
+        data: inSumServices
+    }],
+    chart: {
+        type: 'bar',
+        height: 500,
+        width: 700,
+        stacked: true,
+    },
+    dataLabels: {
+        enabled: false
+    },
+    plotOptions: {
+        bar: {
+            horizontal: true,
+            dataLabels: {
+                position: 'bottom',
+                tooltip: {
+                    formatter: function (val) {
+                        return val.toFixed(2) + " р."
+                    }
+                },
+                total: {
+                    enabled: true,
+                    offsetX: 30,
+                    offsetY: 8,
+                    formatter: function (val) {
+                        return val.toFixed(2)
+                    }
+
+                }
+            }
+        },
+    },
+    stroke: {
+        width: 1,
+        colors: ['#fff']
+    },
+    title: {
+        text: 'Рейтинг услуг',
+        style: {
+            fontSize: '24px',
+            fontWeight: 'bolder'
+        },
+    },
+    xaxis: {
+        categories: inNameServices,
+        labels: {
+            formatter: function (val) {
+                return val + " р."
+            }
+        }
+    },
+    yaxis: {
+        title: {
+            text: undefined
+        },
+    },
+    tooltip: {
+        y: {
+            formatter: function (val) {
+                return val.toFixed(2) + " р."
+            }
+        }
+    },
+    fill: {
+        opacity: 1
+    },
+    legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+        offsetX: 40
+    }
+};
+
+var serviceRatingChart = new ApexCharts(document.getElementById("serviceRating"), serviceRatingOpt);
+serviceRatingChart.render();
+
+var serviceAntiRatingOpt = {
+    series: [{
+        name: 'Общая сумма отключений по услуге',
+        data: outSumServices
+    }],
+    chart: {
+        type: 'bar',
+        height: 500,
+        width: 700,
+        stacked: true,
+    },
+    dataLabels: {
+        enabled: false
+    },
+    plotOptions: {
+        bar: {
+            horizontal: true,
+            dataLabels: {
+                position: 'bottom',
+                tooltip: {
+                    formatter: function (val) {
+                        return val.toFixed(2) + " р."
+                    }
+                },
+                total: {
+                    enabled: true,
+                    offsetX: 3,
+                    offsetY: 8,
+                    formatter: function (val) {
+                        return val.toFixed(0)
+                    }
+
+                }
+            }
+        },
+    },
+    stroke: {
+        width: 1,
+        colors: ['#fff']
+    },
+    title: {
+        text: 'Антирейтинг услуг',
+        style: {
+            fontSize: '24px',
+            fontWeight: 'bolder'
+        },
+    },
+    xaxis: {
+        categories: outNameServices,
+        labels: {
+            formatter: function (val) {
+                return val + " р."
+            }
+        }
+    },
+    yaxis: {
+        title: {
+            text: undefined
+        },
+    },
+    tooltip: {
+        y: {
+            formatter: function (val) {
+                return val.toFixed(2) + " р."
+            }
+        }
+    },
+    fill: {
+        opacity: 1
+    },
+    legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+        offsetX: 40
+    }
+};
+
+var serviceAntiRatingChart = new ApexCharts(document.getElementById("serviceAntiRating"), serviceAntiRatingOpt);
+serviceAntiRatingChart.render();
+
+
+var internetRatingOpt = {
+    series: [{
+        name: 'Общая сумма включений по интернету',
+        data: inSumInternet
+    }],
+    chart: {
+        type: 'bar',
+        height: 500,
+        width: 700,
+        stacked: true,
+    },
+    dataLabels: {
+        enabled: false
+    },
+    plotOptions: {
+        bar: {
+            horizontal: true,
+            dataLabels: {
+                position: 'bottom',
+                tooltip: {
+                    formatter: function (val) {
+                        return val.toFixed(2) + " р."
+                    }
+                },
+                total: {
+                    enabled: true,
+                    offsetX: 30,
+                    offsetY: 8,
+                    formatter: function (val) {
+                        return val.toFixed(2)
+                    }
+
+                }
+            }
+        },
+    },
+    stroke: {
+        width: 1,
+        colors: ['#fff']
+    },
+    title: {
+        text: 'Рейтинг услуг',
+        style: {
+            fontSize: '24px',
+            fontWeight: 'bolder'
+        },
+    },
+    xaxis: {
+        categories: inInternetSpeed,
+        labels: {
+            formatter: function (val) {
+                return val + " р."
+            }
+        }
+    },
+    yaxis: {
+        title: {
+            text: undefined
+        },
+        labels: {
+            formatter: function (val) {
+                return val.toFixed(0) + ' мб/с';
+            }
+        }
+    },
+    tooltip: {
+        y: {
+            formatter: function (val) {
+                return val.toFixed(2) + " р."
+            }
+        }
+    },
+    fill: {
+        opacity: 1
+    },
+    legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+        offsetX: 40
+    }
+};
+
+var internetRatingChart = new ApexCharts(document.getElementById("internetRating"), internetRatingOpt);
+internetRatingChart.render();
+
+var internetAntiRatingOpt = {
+    series: [{
+        name: 'Общая сумма отключений по интернету',
+        data: outSumInternet
+    }],
+    chart: {
+        type: 'bar',
+        height: 500,
+        width: 680,
+        stacked: true,
+    },
+    dataLabels: {
+        enabled: false
+    },
+    plotOptions: {
+        bar: {
+            horizontal: true,
+            dataLabels: {
+                position: 'bottom',
+                tooltip: {
+                    formatter: function (val) {
+                        return val.toFixed(2) + " р."
+                    }
+                },
+                total: {
+                    enabled: true,
+                    offsetX: 3,
+                    offsetY: 8,
+                    formatter: function (val) {
+                        return val.toFixed(0)
+                    }
+
+                }
+            }
+        },
+    },
+    stroke: {
+        width: 1,
+        colors: ['#fff']
+    },
+    title: {
+        text: 'Антирейтинг по интернету',
+        style: {
+            fontSize: '24px',
+            fontWeight: 'bolder'
+        },
+    },
+    xaxis: {
+        categories: outInternetSpeed,
+        labels: {
+            formatter: function (val) {
+                return val + " р."
+            }
+        }
+    },
+    yaxis: {
+        title: {
+            text: undefined
+        },
+        labels: {
+            formatter: function (val) {
+                return val.toFixed(0) + ' мб/с';
+            }
+        }
+    },
+    tooltip: {
+        y: {
+            formatter: function (val) {
+                return val.toFixed(2) + " р."
+            }
+        }
+    },
+    fill: {
+        opacity: 1
+    },
+    legend: {
+        position: 'top',
+        horizontalAlign: 'left',
+        offsetX: 40
+    }
+};
+
+var internetAntiRatingChart = new ApexCharts(document.getElementById("internetAntiRating"), internetAntiRatingOpt);
+internetAntiRatingChart.render();
