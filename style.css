@@ -1,7 +1,8 @@
 body {
     width: 100%;
 }
-h2, h3, h4, h5, .h1Month, .h1Week, .weekButtonClose, .weekButton, span {
+h2, h3, h4, h5, .h1Month, .h1Week, .weekButtonClose, .weekButton,
+span, button, input, .textArea {
     font-family: Andale Mono, monospace;
     font-weight: normal;
 }
@@ -9,10 +10,28 @@ h1 {
     font-family: Andale Mono, monospace;
     text-align: center;
     font-weight: 800;
+    padding: 10px 0;
 }
-.container, .wrapperH, .containerRating {
+.json-result {
+    resize: vertical;
+}
+/*.buttonIndex {*/
+/*    background-color: rgba(238,167,161,0.62);*/
+/*}*/
+.container, .wrapperH, .containerRating, .containerIndex, textarea, .wrapperHIndex {
     background-color: rgba(238,238,238,0.62);
     margin: 0 7%;
+}
+.wrapperHIndex {
+    text-align: start;
+}
+.containerIndex, textarea {
+    padding: 20px 10px;
+}
+.containerIndex {
+    display: flex;
+    justify-content: space-between;
+    max-width: 50%;
 }
 .container, .containerServices {
     display: flex;
@@ -31,13 +50,111 @@ h1 {
     align-items: center;
     min-width: 350px;
 }
-.weekButton, .weekButtonClose {
-    margin: 5px 5px;
-    background-color: #00C0FF;
-    border-radius: 7px;
-}
 .newString, .hat {
     display: flex;
     justify-content: space-between;
 }
 
+.wrapInput {
+    position: relative;
+    display: inline-block;
+}
+.wrapInput span {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    outline: none;
+    padding-top: 5px;
+    vertical-align: center;
+    color: rgb(255 255 255);
+    text-align: center;
+    box-sizing: border-box;
+    border: none;
+    transition: background-color 0.2s;
+}
+.wrapInput input {
+    position: absolute;
+    z-index: -1;
+    opacity: 0;
+    display: block;
+    width: 0;
+    height: 0;
+}
+.filenameWrapper {
+    display: inline-block;
+}
+.textArea {
+    margin-left: 20px;
+}
+
+.buttonIndex, .wrapInput {
+    width: 180px;
+    height: 30px;
+    border-radius: 20px;
+}
+.buttonIndex, .wrapInput, .weekButton, .weekButtonClose {
+    border: none;
+
+    font-size: 15px;
+}
+.weekButton, .weekButtonClose {
+    border-radius: 5px;
+    margin: 5px 5px;
+}
+
+.buttonIndex:link,
+.buttonIndex:visited,
+.weekButton:link,
+.weekButton:visited,
+.weekButtonClose:link,
+.weekButtonClose:visited {
+    text-transform: uppercase;
+    text-decoration: none;
+    padding: 15px 40px;
+    display: inline-block;
+    border-radius: 100px;
+    transition: all .2s;
+    position: absolute;
+}
+
+.buttonIndex:hover,
+.weekButton:hover,
+.weekButtonClose:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    background-color: rgba(61,0,27,0.62);
+}
+
+.buttonIndex:active,
+.weekButton:active,
+.weekButtonClose:active {
+    transform: translateY(-1px);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+}
+
+.buttonIndex,
+.weekButton,
+.weekButtonClose {
+    background-color: rgba(16,16,16,0.79);
+    color: #ffffff;
+}
+
+.buttonIndex::after,
+.weekButton::after,
+.weekButtonClose::after {
+    background-color: #fff;
+}
+
+.buttonIndex:hover::after,
+.weekButton:hover::after,
+.weekButtonClose:hover::after {
+    transform: scaleX(1.4) scaleY(1.6);
+    opacity: 0;
+}
+
+.buttonIndex,
+.weekButton,
+.weekButtonClose {
+    animation: moveInBottom 5s ease-out;
+    animation-fill-mode: backwards;
+}

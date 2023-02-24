@@ -9,6 +9,58 @@ let outSumMay = null;
 let outSumJune = null;
 const months = Object.keys(data);
 
+
+function selectionSort(arr, type) {
+    for (let i = 0; i < arr.length; i++) {
+        let min = i;
+
+        if (type === 'sum') {
+            for (let j = i + 1; j < arr.length; j++) {
+                if (arr[j][1].sum < arr[min][1].sum) {
+                    min = j;
+                }
+            }
+        } else if (type === 'speed') {
+            for (let j = i + 1; j < arr.length; j++) {
+                if (arr[j][1].speed < arr[min][1].speed) {
+                    min = j;
+                }
+            }
+        } else if (type === 'week') {
+            for (let j = i + 1; j < arr.length; j++) {
+                if (arr[j][1].week < arr[min][1].week) {
+                    min = j;
+                }
+            }
+        }
+        const t = arr[min];
+        arr[min] = arr[i];
+        arr[i] = t;
+    }
+    return arr;
+}
+
+function findService(serviceObj, _curService, _type) {
+    let hasProp = [];
+    for (let o in serviceObj) {
+        if (_type === 'service') {
+            if (serviceObj[o].service === _curService) {
+                hasProp.push(o);
+            }
+        } else if (_type === 'speed') {
+            if (serviceObj[o].speed === _curService) {
+                hasProp.push(o);
+            }
+        } else if (_type === 'week') {
+            if (serviceObj[o].week === _curService) {
+                hasProp.push(o);
+            }
+        }
+    }
+    return hasProp;
+}
+
+
 for (let i in data) {
     for (let j in data[i]) {
         if (data[i][j].TYPE === 'Включение' && data[i][j].STATUS === 'Заключен') {
@@ -181,44 +233,75 @@ var chartPie = new ApexCharts(document.getElementById("pie"), optionsPie);
 chartPie.render();
 
 
-let inWeeksSumArr = [];
-let outWeeksSumArr = [];
-let weeksArr = [];
-let week = null;
+let inWeeksSumObj = {};
+let outWeeksSumObj = {};
+let oneWeek = {};
+let _count = 0;
 for (let m in data) {
     for (let w in data[m]) {
-        if (data[m][w].hasOwnProperty('WEEK')) {
-            week = data[m][w].WEEK;
-            // weeksArr.findIndex(findWeek);
-            // function findWeek(week) {
-            //     return week ===
-            // }
-            if (!weeksArr.includes(week)) {
-                if (data[m][w].TYPE === 'Включение' && data[m][w].STATUS === 'Заключен') {
-                    weeksArr.push(data[m][w].WEEK);
-                    inWeeksSumArr.push(data[m][w]['Абонки по договору']);
-                } else if (data[m][w].TYPE === 'Отключение договора' && data[m][w].STATUS === 'Расторгнут') {
-                    weeksArr.push(data[m][w].WEEK);
-                    outWeeksSumArr.push(data[m][w]['Абонки по договору']);
-                }
-            } else {
-                const curIndex = weeksArr.indexOf(week);
-                if (data[m][w].TYPE === 'Включение' && data[m][w].STATUS === 'Заключен') {
-                    if (!inWeeksSumArr[curIndex]) {
-                        inWeeksSumArr.push(data[m][w]['Абонки по договору']);
+        if (data[m][w].hasOwnProperty('WEEK') && data[m][w].hasOwnProperty('Абонки по договору')) {
+            const curWeek = data[m][w].WEEK;
+            const curSum = data[m][w]['Абонки по договору'];
+            oneWeek['week'] = curWeek;
+            oneWeek['sum'] = curSum;
+
+            if (data[m][w].TYPE === 'Включение' && data[m][w].STATUS === 'Заключен') {
+                if (Object.keys(inWeeksSumObj).length === 0) {
+                    inWeeksSumObj[_count] = oneWeek;
+                } else {
+                    const resWeekIn = findService(inWeeksSumObj, curWeek, 'week');
+                    if (resWeekIn.length === 0) {
+                        inWeeksSumObj[_count] = oneWeek;
                     } else {
-                        inWeeksSumArr[curIndex] = inWeeksSumArr[curIndex] + data[m][w]['Абонки по договору'];
-                    }
-                } else if (data[m][w].TYPE === 'Отключение договора' && data[m][w].STATUS === 'Расторгнут') {
-                    if (!outWeeksSumArr[curIndex]) {
-                        outWeeksSumArr.push(Math.abs(data[m][w]['Абонки по договору']));
-                    } else {
-                        outWeeksSumArr[curIndex] = outWeeksSumArr[curIndex] + Math.abs(data[m][w]['Абонки по договору']);
+                        inWeeksSumObj[resWeekIn].sum += curSum;
                     }
                 }
             }
+            if (data[m][w].TYPE === 'Отключение договора' && data[m][w].STATUS === 'Расторгнут') {
+                if (Object.keys(outWeeksSumObj).length === 0) {
+                    outWeeksSumObj[_count] = oneWeek;
+                } else {
+                    const resWeekOut = findService(outWeeksSumObj, curWeek, 'week');
+                    if (resWeekOut.length === 0) {
+                        outWeeksSumObj[_count] = oneWeek;
+                    } else {
+                        outWeeksSumObj[resWeekOut].sum += curSum;
+                    }
+                }
+            }
+            oneWeek = {};
+            _count++;
         }
     }
+}
+
+let inWeekSortArr = selectionSort(Object.entries(inWeeksSumObj), 'week');
+let outWeekSortArr = selectionSort(Object.entries(outWeeksSumObj), 'week');
+let weeksPreArr = [];
+if (inWeekSortArr.length > outWeekSortArr.length) {
+    for (let w in inWeeksSumObj) {
+        const firstCall = findService(inWeeksSumObj, inWeeksSumObj[w].week, 'week');
+        const secondCall = findService(outWeeksSumObj, inWeeksSumObj[w].week, 'week');
+        if (firstCall !== 0 && secondCall !== 0) {
+            weeksPreArr.unshift(inWeeksSumObj[w].week);
+        }
+    }
+} else {
+    for (let w in outWeeksSumObj) {
+        const firstCall = findService(inWeeksSumObj, outWeeksSumObj[w].week, 'week');
+        const secondCall = findService(outWeeksSumObj, outWeeksSumObj[w].week, 'week');
+        if (firstCall !== 0 && secondCall !== 0) {
+            weeksPreArr.unshift(outWeeksSumObj[w].week);
+        }
+    }
+}
+const weeksArr = weeksPreArr.sort();
+
+let inWeeksForPie = [];
+let outWeeksForPie = [];
+for (let i = 0; i < inWeekSortArr.length; i++) {
+    inWeeksForPie.push(inWeekSortArr[i][1].sum);
+    outWeeksForPie.push(outWeekSortArr[i][1].sum);
 }
 
 let weekIn = null;
@@ -230,9 +313,8 @@ for (let week in weeksArr) {
     const newWeekPieItem = document.createElement('div');
     newWeekPieItem.id = `${week}weekPieItem`;
     newWeekPieItem.style.display = 'none';
-
-    weekIn = inWeeksSumArr[week];
-    weekOut = outWeeksSumArr[week];
+    weekIn = inWeeksForPie[week];
+    weekOut = Math.abs(outWeeksForPie[week]);
     weekSum = weekOut + weekIn;
     weekInPie = weekIn * 100 / weekSum;
     weekOutPie = weekOut * 100 / weekSum;
@@ -278,7 +360,7 @@ function unshowAll() {
     const allPiesItems = document.getElementById('weekPieWrapper').children;
     for (let p = 0; p < allPiesItems.length; p++) {
         allPiesItems[p].style.display = 'none';
-        document.getElementById(`${p}week`).style.backgroundColor = '#00C0FF';
+        document.getElementById(`${p}week`).style.backgroundColor = 'rgba(16,16,16,0.79)';
     }
 }
 
@@ -286,7 +368,7 @@ const weekButtons = document.querySelectorAll('.weekButton');
 for (let h = 0; h < weekButtons.length; h++) {
     (function (index) {
         weekButtons[index].addEventListener("click", function () {
-            document.getElementById(`${index}week`).style.backgroundColor = '#008EFF';
+            document.getElementById(`${index}week`).style.backgroundColor = 'rgba(162,81,1,0.71)';
             showNewGraph(index);
         });
     })(h);
@@ -297,7 +379,7 @@ function showNewGraph(i) {
     if (itemPie.style.display === 'none') {
         itemPie.style.display = 'block';
     } else if (itemPie.style.display === 'block') {
-        document.getElementById(`${i}week`).style.backgroundColor = '#00C0FF';
+        document.getElementById(`${i}week`).style.backgroundColor = 'rgba(16,16,16,0.79)';
         itemPie.style.display = 'none';
     }
 }
@@ -317,11 +399,11 @@ var weekOptionsOut = {
     series: [
         {
             name: "Включения",
-            data: inWeeksSumArr
+            data: inWeeksForPie
         },
         {
             name: "Отключения",
-            data: outWeeksSumArr
+            data: outWeeksForPie
         }
     ],
     stroke: {
@@ -619,60 +701,9 @@ antiRatingChart.render();
 // let allServices = {};
 let inAllServices = {};
 let outAllServices = {};
-let oneService = {};
 let count = 0;
 let inInternet = {};
 let outInternet = {};
-
-function selectionSort(arr) {
-    for (let i = 0; i < arr.length; i++) {
-        let min = i;
-        for (let j = i + 1; j < arr.length; j++) {
-            if (arr[j][1].sum < arr[min][1].sum) {
-                min = j;
-            }
-        }
-        const t = arr[min];
-        arr[min] = arr[i];
-        arr[i] = t;
-    }
-    return arr;
-}
-
-function selectionSortSpeed(arr) {
-    for (let i = 0; i < arr.length; i++) {
-        let min = i;
-        for (let j = i + 1; j < arr.length; j++) {
-            if (arr[j][1].speed < arr[min][1].speed) {
-                min = j;
-            }
-        }
-        const t = arr[min];
-        arr[min] = arr[i];
-        arr[i] = t;
-    }
-    return arr;
-}
-
-function findService(serviceObj, _curService) {
-    let hasProp = [];
-    for (let o in serviceObj) {
-        if (serviceObj[o].service === _curService) {
-            hasProp.push(o);
-        }
-    }
-    return hasProp;
-}
-
-function findSpeed(serviceObj, _speed) {
-    let hasProp = [];
-    for (let o in serviceObj) {
-        if (serviceObj[o].speed === _speed) {
-            hasProp.push(o);
-        }
-    }
-    return hasProp;
-}
 
 for (let m in data) {
     for (let w in data[m]) {
@@ -680,9 +711,17 @@ for (let m in data) {
             const curService = data[m][w].SERVICE;
             const curSum = data[m][w]['Абонки по договору'];
             const curSpeed = data[m][w].CHANNEL_SPEED_MB;
+            const curServiceTwo = data[m][w].SERVICE;
+            const curSumTwo = data[m][w]['Абонки по договору'];
+            const curSpeedTwo = data[m][w].CHANNEL_SPEED_MB;
+            const oneService = {};
+            const twoService = {};
             oneService['sum'] = curSum;
             oneService['service'] = curService;
             oneService['speed'] = curSpeed;
+            twoService['sum'] = curSumTwo;
+            twoService['service'] = curServiceTwo;
+            twoService['speed'] = curSpeedTwo;
             // if (Object.keys(allServices).length === 0) {
             //     allServices[count] = oneService;
             // } else {
@@ -697,21 +736,21 @@ for (let m in data) {
                 if (Object.keys(inAllServices).length === 0) {
                     inAllServices[count] = oneService;
                 } else {
-                    const resIn = findService(inAllServices, curService);
+                    const resIn = findService(inAllServices, curService, 'service');
                     if (resIn.length === 0) {
                         inAllServices[count] = oneService;
                     } else {
-                        inAllServices[resIn].sum += curSum;
+                        inAllServices[resIn].sum = inAllServices[resIn].sum + curSum;
                     }
                 }
                 if (Object.keys(inInternet).length === 0 && data[m][w].SERVICE === 'Интернет') {
-                    inInternet[count] = oneService;
+                    inInternet[count] = twoService;
                 } else if (data[m][w].SERVICE === 'Интернет' && data[m][w].CHANNEL_SPEED_MB !== undefined) {
-                    const resultInternet = findSpeed(inInternet, curSpeed);
+                    const resultInternet = findService(inInternet, curSpeed, 'speed');
                     if (resultInternet.length === 0) {
-                        inInternet[count] = oneService;
+                        inInternet[count] = twoService;
                     } else {
-                        inInternet[resultInternet].sum += curSum;
+                        inInternet[resultInternet].sum = inInternet[resultInternet].sum + curSum;
                     }
                 }
             }
@@ -721,7 +760,7 @@ for (let m in data) {
                 if (Object.keys(outAllServices).length === 0) {
                     outAllServices[count] = oneService;
                 } else {
-                    const resOut = findService(outAllServices, curService);
+                    const resOut = findService(outAllServices, curService, 'service');
                     if (resOut.length === 0) {
                         outAllServices[count] = oneService;
                     } else {
@@ -729,27 +768,26 @@ for (let m in data) {
                     }
                 }
                 if (Object.keys(outInternet).length === 0 && data[m][w].SERVICE === 'Интернет') {
-                    outInternet[count] = oneService;
+                    outInternet[count] = twoService;
                 } else if (data[m][w].SERVICE === 'Интернет') {
-                    const resultInternet = findSpeed(outInternet, curSpeed);
+                    const resultInternet = findService(outInternet, curSpeed, 'speed');
                     if (resultInternet.length === 0) {
-                        outInternet[count] = oneService;
+                        outInternet[count] = twoService;
                     } else {
                         outInternet[resultInternet].sum += curSum;
                     }
                 }
             }
-            oneService = {};
             count++;
         }
     }
 }
 
 // const sortArrServices = selectionSort(Object.entries(allServices));
-const sortInArrServices = selectionSort(Object.entries(inAllServices));
-const sortOutArrServices = selectionSort(Object.entries(outAllServices));
-const sortInInternet = selectionSort(Object.entries(inInternet));
-const sortOutInternet = selectionSort(Object.entries(outInternet));
+const sortInArrServices = selectionSort(Object.entries(inAllServices), 'sum');
+const sortOutArrServices = selectionSort(Object.entries(outAllServices), 'sum');
+const sortInInternet = selectionSort(Object.entries(inInternet), 'sum');
+const sortOutInternet = selectionSort(Object.entries(outInternet), 'sum');
 let inNameServices = [];
 let inSumServices = [];
 let outNameServices = [];
@@ -776,7 +814,6 @@ for (let i = 0; i < sortOutInternet.length; i++) {
 }
 
 
-
 var serviceRatingOpt = {
     series: [{
         name: 'Общая сумма включений по услуге',
@@ -791,6 +828,7 @@ var serviceRatingOpt = {
     dataLabels: {
         enabled: false
     },
+    colors: ['#4A8300'],
     plotOptions: {
         bar: {
             horizontal: true,
@@ -871,6 +909,7 @@ var serviceAntiRatingOpt = {
     dataLabels: {
         enabled: false
     },
+    colors: ['#CF0006'],
     plotOptions: {
         bar: {
             horizontal: true,
@@ -883,7 +922,7 @@ var serviceAntiRatingOpt = {
                 },
                 total: {
                     enabled: true,
-                    offsetX: 3,
+                    offsetX: 10,
                     offsetY: 8,
                     formatter: function (val) {
                         return val.toFixed(0)
@@ -940,18 +979,19 @@ serviceAntiRatingChart.render();
 
 var internetRatingOpt = {
     series: [{
-        name: 'Общая сумма включений по интернету',
+        name: 'Общая сумма включений по скорости',
         data: inSumInternet
     }],
     chart: {
         type: 'bar',
-        height: 500,
+        height: 700,
         width: 700,
         stacked: true,
     },
     dataLabels: {
         enabled: false
     },
+    colors: ['#4A8300'],
     plotOptions: {
         bar: {
             horizontal: true,
@@ -979,7 +1019,7 @@ var internetRatingOpt = {
         colors: ['#fff']
     },
     title: {
-        text: 'Рейтинг услуг',
+        text: 'Рейтинг по скорости',
         style: {
             fontSize: '24px',
             fontWeight: 'bolder'
@@ -1025,18 +1065,19 @@ internetRatingChart.render();
 
 var internetAntiRatingOpt = {
     series: [{
-        name: 'Общая сумма отключений по интернету',
+        name: 'Общая сумма отключений по скорости',
         data: outSumInternet
     }],
     chart: {
         type: 'bar',
-        height: 500,
+        height: 700,
         width: 680,
         stacked: true,
     },
     dataLabels: {
         enabled: false
     },
+    colors: ['#CF0006'],
     plotOptions: {
         bar: {
             horizontal: true,
@@ -1049,7 +1090,7 @@ var internetAntiRatingOpt = {
                 },
                 total: {
                     enabled: true,
-                    offsetX: 3,
+                    offsetX: 20,
                     offsetY: 8,
                     formatter: function (val) {
                         return val.toFixed(0)
@@ -1064,7 +1105,7 @@ var internetAntiRatingOpt = {
         colors: ['#fff']
     },
     title: {
-        text: 'Антирейтинг по интернету',
+        text: 'Антирейтинг по скорости',
         style: {
             fontSize: '24px',
             fontWeight: 'bolder'

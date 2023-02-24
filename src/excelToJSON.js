@@ -1,3 +1,9 @@
+document.getElementById('file_upload').onchange = function() {
+    let file = this.files[0];
+    document.getElementById('textArea').innerHTML = file.name;
+};
+
+
 // Method to upload a valid excel file
 function upload() {
     var files = document.getElementById('file_upload').files;
@@ -47,5 +53,6 @@ function excelFileToJSON(file){
 }
 
 function changeLocation() {
+    upload();
     location.href = 'inbox.html';
 }
